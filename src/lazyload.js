@@ -1,10 +1,10 @@
 (function(win) {
 
-  var loadOffset = 200;
+  var loadOffset = 100;
   var targetAttribute = 'data-src';
   var imgArray = [];
   var doc = win.document;
-  var docElem = doc.doumentElement;
+  var docElem = doc.documentElement;
   var windowHeight = 0;
 
   if (docElem.clientHeight >= 0) {
@@ -86,9 +86,8 @@
     };
   }
 
-  var throttledShowImages = throttle(showImages, 500);
-
   doc.addEventListener('DOMContentLoaded', function() {
+    //get image elements
     var img, imgs = doc.getElementsByTagName('img');
     for(var i = 0, len = imgs.length;i < len;i++) {
       img = imgs[i];
@@ -98,8 +97,17 @@
     }
   });
 
-  win.addEventListener('scroll', function() {
-    throttledShowImages();
-  });
+  //scroll event handler which is throttled
+  var throttledScrollEventHandler = throttle(function(e) {
+    if(showImages()) {
+      //if all images are loaded.
+      //release memory
+      imgArray = [];
+      //unbind scroll event
+      win.removeEventListener('scroll', throttledScrollEventHandler);
+    }
+  }, 500);
+
+  win.addEventListener('scroll', throttledScrollEventHandler);
 
 })(window);
