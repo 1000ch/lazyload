@@ -48,39 +48,32 @@
 
   /**
    * throttle
-   * @description borrowed from underscore.js
+   * @description borrowed from underscore.js#throttle
    * @param fn
    * @param wait
-   * @param options
    * @returns {Function}
    */
-  function throttle(fn, wait, options) {
+  function throttle(fn, wait) {
     var context, args, result;
     var timeout = null;
     var previous = 0;
-    if(!options){
-      options = {};
-    }
     var later = function() {
-      previous = options.leading === false ? 0 : Date.now();
+      previous = Date.now();
       timeout = null;
       result = fn.apply(context, args);
     };
     return function() {
       var now = Date.now();
-      if (!previous && options.leading === false) {
-        previous = now;
-      }
       var remaining = wait - (now - previous);
       context = this;
       args = arguments;
       if (remaining <= 0) {
-        clearTimeout(timeout);
+        win.clearTimeout(timeout);
         timeout = null;
         previous = now;
         result = fn.apply(context, args);
-      } else if (!timeout && options.trailing !== false) {
-        timeout = setTimeout(later, remaining);
+      } else if (!timeout) {
+        timeout = win.setTimeout(later, remaining);
       }
       return result;
     };
