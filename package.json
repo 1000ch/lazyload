@@ -1,0 +1,21 @@
+{
+  "name": "lazyload",
+  "version": "0.0.1",
+  "description": "Image lazy loading.",
+  "main": "gruntfile.coffee",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/1000ch/lazyload.git"
+  },
+  "author": "1000ch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/1000ch/lazyload/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.4",
+    "grunt-contrib-uglify": "~0.2.4",
+    "grunt-contrib-watch": "~0.5.3"
+  }
+}
