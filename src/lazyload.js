@@ -108,6 +108,10 @@
     }
   }, 500);
 
+  win.addEventListener('load', function(e) {
+    showImages();
+  });
+
   win.addEventListener('scroll', throttledScrollEventHandler);
 
 })(window);
