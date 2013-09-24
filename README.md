@@ -6,6 +6,16 @@
 良いライブラリいくつかあるけど、クロスブラウザーだったり、  
 色々省けそうだったので、書きなおした。  
 
+## Try it
+
+リポジトリをクローンして`sample/index.html`を開いてください。  
+
+```sh
+git clone git@github.com:1000ch/lazyload.git
+
+open sample/index.html
+```
+
 ## Usage
 
 遅延ロードしたい`<img>`を以下のように書いて、  
@@ -20,7 +30,6 @@ READMEなので`<script></script>`で書いてありますが、
 もちろん他のjsに含めてもらって問題ないです。むしろそのほうがいいです。  
 これだと`before.png`をロードすべくリクエストが発生してしまうので、  
 空画像のdata-uriを埋めておくほうが良いでしょう。  
-
 
 ```html
 <img
