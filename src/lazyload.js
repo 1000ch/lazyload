@@ -47,33 +47,36 @@
   }
 
   /**
-   * throttle
-   * @description borrowed from underscore.js#throttle
+   * debounce
+   * @description borrowed from underscore.js#debounce
    * @param fn
    * @param wait
+   * @param immediate
    * @returns {Function}
    */
-  function throttle(fn, wait) {
-    var context, args, result;
-    var timeout = null;
-    var previous = 0;
-    var later = function() {
-      previous = Date.now();
-      timeout = null;
-      result = fn.apply(context, args);
-    };
+  function debounce(fn, wait, immediate) {
+    var timeout, args, context, timestamp, result;
     return function() {
-      var now = Date.now();
-      var remaining = wait - (now - previous);
       context = this;
       args = arguments;
-      if (remaining <= 0) {
-        win.clearTimeout(timeout);
-        timeout = null;
-        previous = now;
+      timestamp = Date.now();
+      var later = function() {
+        var last = Date.now() - timestamp;
+        if(last < wait) {
+          timeout = setTimeout(later, wait - last);
+        } else {
+          timeout = null;
+          if (!immediate) {
+            result = fn.apply(context, args);
+          }
+        }
+      };
+      var callNow = immediate && !timeout;
+      if(!timeout) {
+        timeout = setTimeout(later, wait);
+      }
+      if(callNow) {
         result = fn.apply(context, args);
-      } else if (!timeout) {
-        timeout = win.setTimeout(later, remaining);
       }
       return result;
     };
@@ -90,21 +93,21 @@
     }
   });
 
-  //scroll event handler which is throttled
-  var throttledScrollEventHandler = throttle(function(e) {
+  //scroll event handler which is debounced
+  var debouncedScrollEventHandler = debounce(function(e) {
     if(showImages()) {
       //if all images are loaded.
       //release memory
       imgArray = [];
       //unbind scroll event
-      win.removeEventListener('scroll', throttledScrollEventHandler);
+      win.removeEventListener('scroll', debouncedScrollEventHandler);
     }
-  }, 500);
+  }, 300);
 
   win.addEventListener('load', function(e) {
     showImages();
   });
 
-  win.addEventListener('scroll', throttledScrollEventHandler);
+  win.addEventListener('scroll', debouncedScrollEventHandler);
 
 })(window);
