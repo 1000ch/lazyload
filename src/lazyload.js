@@ -1,10 +1,11 @@
-(function(win) {
+(function(window, document) {
 
   var loadOffset = 100;
   var targetAttribute = 'data-src';
   var imgArray = [];
-  var doc = win.document;
-  var docElem = doc.documentElement;
+  var win = window;
+  var doc = document;
+  var docElem = document.documentElement;
   var windowHeight = 0;
 
   if (docElem.clientHeight >= 0) {
@@ -16,13 +17,12 @@
   }
 
   /**
-   * return img is visible or not
+   * return that img is visible or not
    * @param img
    * @returns {boolean}
    */
   function isShown(img) {
-    return (!!(docElem.compareDocumentPosition(img) & 16) &&
-      img.getBoundingClientRect().top < windowHeight + loadOffset);
+    return !!(docElem.compareDocumentPosition(img) & 16) && (img.getBoundingClientRect().top < windowHeight + loadOffset);
   }
 
   /**
@@ -47,38 +47,19 @@
   }
 
   /**
-   * debounce
-   * @description borrowed from underscore.js#debounce
+   * throttle
    * @param fn
-   * @param wait
-   * @param immediate
+   * @param delay
    * @returns {Function}
    */
-  function debounce(fn, wait, immediate) {
-    var timeout, args, context, timestamp, result;
+  function throttle(fn, delay) {
+    var timer = null;
     return function() {
-      context = this;
-      args = arguments;
-      timestamp = Date.now();
-      var later = function() {
-        var last = Date.now() - timestamp;
-        if(last < wait) {
-          timeout = setTimeout(later, wait - last);
-        } else {
-          timeout = null;
-          if (!immediate) {
-            result = fn.apply(context, args);
-          }
-        }
-      };
-      var callNow = immediate && !timeout;
-      if(!timeout) {
-        timeout = setTimeout(later, wait);
-      }
-      if(callNow) {
-        result = fn.apply(context, args);
-      }
-      return result;
+      var context = this, args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(context, args);
+      }, delay);
     };
   }
 
@@ -93,14 +74,14 @@
     }
   });
 
-  //scroll event handler which is debounced
-  var debouncedScrollEventHandler = debounce(function(e) {
+  //scroll event handler which is throttled
+  var scrollEventHandler = throttle(function(e) {
     if(showImages()) {
       //if all images are loaded.
       //release memory
       imgArray = [];
       //unbind scroll event
-      win.removeEventListener('scroll', debouncedScrollEventHandler);
+      win.removeEventListener('scroll', scrollEventHandler);
     }
   }, 300);
 
@@ -108,6 +89,6 @@
     showImages();
   });
 
-  win.addEventListener('scroll', debouncedScrollEventHandler);
+  win.addEventListener('scroll', scrollEventHandler);
 
-})(window);
+})(window, document);
