@@ -96,6 +96,6 @@
   };
 
   //export
-  win.Lazyload = Lazyload;
+  win.Lazyload = new Lazyload;
 
 })(window, document);
