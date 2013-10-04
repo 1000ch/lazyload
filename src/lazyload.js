@@ -35,8 +35,7 @@
     //scroll event handler which is throttled
     var scrollEventHandler = Lazyload.throttle((function(e) {
       if(this.showImages()) {
-        //if all images are loaded.
-        //release memory
+        //if all images are loaded, release memory
         this.imgArray = [];
         //unbind scroll event
         win.removeEventListener('scroll', scrollEventHandler);
@@ -49,6 +48,7 @@
 
   Lazyload.loadOffset = 100;
   Lazyload.targetAttribute = 'data-src';
+
   /**
    * throttle
    * @param fn
@@ -65,6 +65,7 @@
       }, delay);
     };
   };
+
   /**
    * return that img is visible or not
    * @param img
@@ -95,7 +96,10 @@
     return completed;
   };
 
+  //create instance
+  Lazyload.instance = new Lazyload;
+
   //export
-  win.Lazyload = new Lazyload;
+  win.Lazyload = Lazyload;
 
 })(window, document);
