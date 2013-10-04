@@ -19,6 +19,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-jshint'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-plato'
 
-  grunt.registerTask "default", "watch"
-  grunt.registerTask "build", "uglify"
+  grunt.registerTask 'default', 'watch'
+  grunt.registerTask 'build', 'uglify'
