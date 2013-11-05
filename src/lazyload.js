@@ -19,28 +19,31 @@
       this.windowHeight = win.innerHeight;
     }
 
+    //cache for closure
+    var that = this;
+
     //listen DOMContentLoaded
-    doc.addEventListener('DOMContentLoaded', (function() {
+    doc.addEventListener('DOMContentLoaded', function() {
       //get image elements
       var img, imgs = doc.getElementsByTagName('img');
       for(var i = 0, len = imgs.length;i < len;i++) {
         img = imgs[i];
-        if(img.hasAttribute(Lazyload.targetAttribute) && this.imgArray.indexOf(img) === -1) {
-          this.imgArray.push(img);
+        if(img.hasAttribute(Lazyload.targetAttribute) && that.imgArray.indexOf(img) === -1) {
+          that.imgArray.push(img);
         }
       }
-      this.showImages();
-    }).bind(this));
+      that.showImages();
+    });
 
     //scroll event handler which is throttled
-    var scrollEventHandler = Lazyload.throttle((function(e) {
-      if(this.showImages()) {
+    var scrollEventHandler = Lazyload.throttle(function(e) {
+      if(that.showImages()) {
         //if all images are loaded, release memory
-        this.imgArray = [];
+        that.imgArray = [];
         //unbind scroll event
         win.removeEventListener('scroll', scrollEventHandler);
       }
-    }).bind(this), 300);
+    }, 300);
 
     //listen scroll event
     win.addEventListener('scroll', scrollEventHandler);
@@ -97,7 +100,7 @@
   };
 
   //create instance
-  Lazyload.instance = new Lazyload;
+  Lazyload.instance = new Lazyload();
 
   //export
   win.Lazyload = Lazyload;
