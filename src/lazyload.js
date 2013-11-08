@@ -1,3 +1,9 @@
+/**
+ * lazyload.js
+ * 
+ * Copyright 1000ch<http://1000ch.net/>
+ * licensed under the MIT license.
+ */
 (function(window, document) {
 
   var win = window;
