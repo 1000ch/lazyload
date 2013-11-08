@@ -2,7 +2,7 @@
 
 ## v0.0.2 - 2013/11/05
 
-### Bugfix for [#1](/issues/1)
+### Bugfix for [#1](/1000ch/lazyload/issues/1)
 
 - Lazyload did not work at iOS5.x and Android2.x because they don't have `Function.prototype.bind`.
 
