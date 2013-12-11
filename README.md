@@ -39,6 +39,6 @@ READMEなので`<script></script>`で書いてありますが、
 
 + [hiloki/spacer](https://github.com/hiloki/spacer)
 
-## Lisence
+## License
 
 MIT.
