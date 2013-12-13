@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.0.3 - 2013/12/13
+
+### Refactoring
+
 ## v0.0.2 - 2013/11/05
 
 ### Bugfix for [#1](https://github.com/1000ch/lazyload/issues/1)
