@@ -90,18 +90,18 @@
    */
   Lazyload.prototype.showImages = function() {
     var completed = true;
+    var array = [];
     var img;
-    for(var i = 0, len = this.imgArray.length;i < len;i++) {
-      img = this.imgArray[i];
-      if(img) {
-        completed = false;
-        if(this.isShown(img)) {
-          img.src = img.getAttribute(Lazyload.targetAttribute);
-          img.removeAttribute(Lazyload.targetAttribute);
-          this.imgArray[i] = null;
-        }
+    while ((img = this.imgArray.shift())) {
+      completed = false;
+      if (this.isShown(img)) {
+        img.src = img.getAttribute(Lazyload.targetAttribute);
+        img.removeAttribute(Lazyload.targetAttribute);
+      } else {
+        array.push(img);
       }
     }
+    this.imgArray = array;
     return completed;
   };
 
