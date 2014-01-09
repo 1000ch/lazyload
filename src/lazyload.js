@@ -6,6 +6,7 @@
  */
 (function(window, document) {
 
+  // cache to local
   var win = window;
   var doc = document;
   var docElem = document.documentElement;
@@ -15,7 +16,11 @@
    * @constructor Lazyload
    */
   function Lazyload() {
+    
+    // img elements
     this.imgArray = [];
+    
+    // detect display size
     this.windowHeight = 0;
     if (docElem.clientHeight >= 0) {
       this.windowHeight = docElem.clientHeight;
@@ -25,12 +30,12 @@
       this.windowHeight = win.innerHeight;
     }
 
-    //cache for closure
+    // for callback
     var that = this;
 
-    //listen DOMContentLoaded
+    // listen DOMContentLoaded
     doc.addEventListener('DOMContentLoaded', function() {
-      //get image elements
+      // get image elements
       var img, imgs = doc.getElementsByTagName('img');
       for(var i = 0, len = imgs.length;i < len;i++) {
         img = imgs[i];
@@ -41,17 +46,17 @@
       that.showImages();
     });
 
-    //scroll event handler which is throttled
+    // scroll event handler which is throttled
     var scrollEventHandler = Lazyload.throttle(function(e) {
       if(that.showImages()) {
-        //if all images are loaded, release memory
-        that.imgArray = [];
-        //unbind scroll event
+        // if all images are loaded, release memory
+        that.imgArray = null;
+        // unbind scroll event
         win.removeEventListener('scroll', scrollEventHandler);
       }
     }, 300);
 
-    //listen scroll event
+    // listen scroll event
     win.addEventListener('scroll', scrollEventHandler);
   }
 
@@ -76,9 +81,9 @@
   };
 
   /**
-   * return that img is visible or not
+   * return whether img is visible or not
    * @param img
-   * @returns {boolean}
+   * @returns {Boolean}
    */
   Lazyload.prototype.isShown = function(img) {
     return !!(docElem.compareDocumentPosition(img) & 16) && (img.getBoundingClientRect().top < this.windowHeight + Lazyload.loadOffset);
@@ -86,14 +91,12 @@
 
   /**
    * show images
-   * @returns {boolean}
+   * @returns {Boolean}
    */
   Lazyload.prototype.showImages = function() {
-    var completed = true;
     var array = [];
     var img;
     while ((img = this.imgArray.shift())) {
-      completed = false;
       if (this.isShown(img)) {
         img.src = img.getAttribute(Lazyload.targetAttribute);
         img.removeAttribute(Lazyload.targetAttribute);
@@ -102,13 +105,13 @@
       }
     }
     this.imgArray = array;
-    return completed;
+    return Boolean(imgArray.length);
   };
 
-  //create instance
+  // create instance
   Lazyload.instance = new Lazyload();
 
-  //export
+  // export
   win.Lazyload = Lazyload;
 
 })(window, document);
