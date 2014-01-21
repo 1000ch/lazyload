@@ -10,6 +10,7 @@
   var win = window;
   var doc = document;
   var docElem = document.documentElement;
+  var targetAttribute = 'data-src';
 
   /**
    * Lazyload Class
@@ -29,6 +30,7 @@
     } else if (win.innerHeight >= 0) {
       this.windowHeight = win.innerHeight;
     }
+    this.loadOffset = this.windowHeight * 1.5;
 
     // for callback
     var that = this;
@@ -39,7 +41,7 @@
       var img, imgs = doc.getElementsByTagName('img');
       for(var i = 0, len = imgs.length;i < len;i++) {
         img = imgs[i];
-        if(img.hasAttribute(Lazyload.targetAttribute) && that.imgArray.indexOf(img) === -1) {
+        if(img.hasAttribute(targetAttribute) && that.imgArray.indexOf(img) === -1) {
           that.imgArray.push(img);
         }
       }
@@ -59,9 +61,6 @@
     // listen scroll event
     win.addEventListener('scroll', scrollEventHandler);
   }
-
-  Lazyload.loadOffset = 100;
-  Lazyload.targetAttribute = 'data-src';
 
   /**
    * throttle
@@ -86,7 +85,7 @@
    * @returns {Boolean}
    */
   Lazyload.prototype.isShown = function(img) {
-    return !!(docElem.compareDocumentPosition(img) & 16) && (img.getBoundingClientRect().top < this.windowHeight + Lazyload.loadOffset);
+    return !!(docElem.compareDocumentPosition(img) & 16) && (img.getBoundingClientRect().top < this.loadOffset);
   };
 
   /**
@@ -98,14 +97,14 @@
     var img;
     while ((img = this.imgArray.shift())) {
       if (this.isShown(img)) {
-        img.src = img.getAttribute(Lazyload.targetAttribute);
-        img.removeAttribute(Lazyload.targetAttribute);
+        img.src = img.getAttribute(targetAttribute);
+        img.removeAttribute(targetAttribute);
       } else {
         array.push(img);
       }
     }
     this.imgArray = array;
-    return Boolean(imgArray.length);
+    return this.imgArray.length === 0;
   };
 
   // create instance
