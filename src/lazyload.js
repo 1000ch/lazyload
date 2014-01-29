@@ -7,10 +7,25 @@
 (function(window, document) {
 
   // cache to local
-  var win = window;
-  var doc = document;
-  var docElem = document.documentElement;
+  var documentElement = document.documentElement;
   var targetAttribute = 'data-src';
+
+  /**
+   * throttle
+   * @param fn
+   * @param delay
+   * @returns {Function}
+   */
+  function _throttle(fn, delay) {
+    var timer = null;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(context, args);
+      }, delay);
+    };
+  }
 
   /**
    * Lazyload Class
@@ -23,22 +38,32 @@
     
     // detect display size
     this.windowHeight = 0;
-    if (docElem.clientHeight >= 0) {
-      this.windowHeight = docElem.clientHeight;
-    } else if (doc.body && doc.body.clientHeight >= 0) {
-      this.windowHeight = doc.body.clientHeight;
-    } else if (win.innerHeight >= 0) {
-      this.windowHeight = win.innerHeight;
+    if (documentElement.clientHeight >= 0) {
+      this.windowHeight = documentElement.clientHeight;
+    } else if (document.body && document.body.clientHeight >= 0) {
+      this.windowHeight = document.body.clientHeight;
+    } else if (window.innerHeight >= 0) {
+      this.windowHeight = window.innerHeight;
     }
+    
+    // images which got in half of display forward will be loaded
     this.loadOffset = this.windowHeight * 1.5;
+    
+    // listen DOMContentLoaded and scroll
+    this.startListening();
+  }
+
+  /**
+   * start event listening
+   */
+  Lazyload.prototype.startListening = function() {
 
     // for callback
     var that = this;
 
-    // listen DOMContentLoaded
-    doc.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function onDOMContentLoaded(e) {
       // get image elements
-      var img, imgs = doc.getElementsByTagName('img');
+      var img, imgs = document.getElementsByTagName('img');
       for(var i = 0, len = imgs.length;i < len;i++) {
         img = imgs[i];
         if(img.hasAttribute(targetAttribute) && that.imgArray.indexOf(img) === -1) {
@@ -47,36 +72,17 @@
       }
       that.showImages();
     });
-
-    // scroll event handler which is throttled
-    var scrollEventHandler = Lazyload.throttle(function(e) {
-      if(that.showImages()) {
+    
+    var onScrollThrottled = _throttle(function onScroll(e) {
+      if (that.showImages()) {
         // if all images are loaded, release memory
         that.imgArray = null;
         // unbind scroll event
-        win.removeEventListener('scroll', scrollEventHandler);
+        window.removeEventListener('scroll', onScrollThrottled);
       }
     }, 300);
-
-    // listen scroll event
-    win.addEventListener('scroll', scrollEventHandler);
-  }
-
-  /**
-   * throttle
-   * @param fn
-   * @param delay
-   * @returns {Function}
-   */
-  Lazyload.throttle = function(fn, delay) {
-    var timer = null;
-    return function() {
-      var context = this, args = arguments;
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        fn.apply(context, args);
-      }, delay);
-    };
+    
+    window.addEventListener('scroll', onScrollThrottled);
   };
 
   /**
@@ -85,7 +91,7 @@
    * @returns {Boolean}
    */
   Lazyload.prototype.isShown = function(img) {
-    return !!(docElem.compareDocumentPosition(img) & 16) && (img.getBoundingClientRect().top < this.loadOffset);
+    return !!(documentElement.compareDocumentPosition(img) & 16) && (img.getBoundingClientRect().top < this.loadOffset);
   };
 
   /**
@@ -111,6 +117,6 @@
   Lazyload.instance = new Lazyload();
 
   // export
-  win.Lazyload = Lazyload;
+  window.Lazyload = Lazyload;
 
 })(window, document);
