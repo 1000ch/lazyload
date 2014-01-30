@@ -9,6 +9,7 @@
   // cache to local
   var documentElement = document.documentElement;
   var targetAttribute = 'data-src';
+  var rxReady = /complete|loaded|interactive/;
 
   /**
    * throttle
@@ -61,17 +62,15 @@
     // for callback
     var that = this;
 
-    document.addEventListener('DOMContentLoaded', function onDOMContentLoaded(e) {
-      // get image elements
-      var img, imgs = document.getElementsByTagName('img');
-      for(var i = 0, len = imgs.length;i < len;i++) {
-        img = imgs[i];
-        if(img.hasAttribute(targetAttribute) && that.imgArray.indexOf(img) === -1) {
-          that.imgArray.push(img);
-        }
-      }
-      that.showImages();
-    });
+    if (rxReady.test(document.readyState)) {
+      this.getImages();
+      this.showImages();
+    } else {
+      document.addEventListener('DOMContentLoaded', function onDOMContentLoaded(e) {
+        that.getImages();
+        that.showImages();
+      });
+    }
     
     var onScrollThrottled = _throttle(function onScroll(e) {
       if (that.showImages()) {
@@ -83,6 +82,17 @@
     }, 300);
     
     window.addEventListener('scroll', onScrollThrottled);
+  };
+  
+  Lazyload.prototype.getImages = function() {
+    // get image elements
+    var img, imgs = document.getElementsByTagName('img');
+    for(var i = 0, len = imgs.length;i < len;i++) {
+      img = imgs[i];
+      if(img.hasAttribute(targetAttribute) && this.imgArray.indexOf(img) === -1) {
+        this.imgArray.push(img);
+      }
+    }
   };
 
   /**
@@ -112,9 +122,6 @@
     this.imgArray = array;
     return this.imgArray.length === 0;
   };
-
-  // create instance
-  Lazyload.instance = new Lazyload();
 
   // export
   window.Lazyload = Lazyload;
