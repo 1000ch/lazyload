@@ -28,7 +28,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-jsvalidate'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-watch'
-  grunt.loadNpmTasks 'grunt-plato'
 
   grunt.registerTask 'default', 'watch'
   grunt.registerTask 'build', ['jshint', 'jsvalidate', 'uglify']
