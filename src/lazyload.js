@@ -91,7 +91,7 @@
     var img;
     for(var i = 0, len = imgs.length;i < len;i++) {
       img = imgs[i];
-      if(img.hasAttribute(targetAttribute) && this.imgArray.indexOf(img) === -1) {
+      if(img.hasAttribute(targetAttribute) && (documentElement.compareDocumentPosition(img) & 16)) {
         this.imgArray.push(img);
       }
     }
@@ -103,7 +103,7 @@
    * @returns {Boolean}
    */
   Lazyload.prototype.isShown = function(img) {
-    return !!(documentElement.compareDocumentPosition(img) & 16) && (img.getBoundingClientRect().top < this.loadOffset);
+    return (img.getBoundingClientRect().top < this.loadOffset);
   };
 
   /**
