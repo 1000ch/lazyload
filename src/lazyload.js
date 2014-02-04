@@ -9,6 +9,7 @@
   // cache to local
   var documentElement = document.documentElement;
   var targetAttribute = 'data-src';
+  var resolvedAttribute = 'data-resolved';
   var rxReady = /complete|loaded|interactive/;
 
   /**
@@ -86,7 +87,8 @@
   
   Lazyload.prototype.getImages = function() {
     // get image elements
-    var img, imgs = document.getElementsByTagName('img');
+    var imgs = document.getElementsByTagName('img');
+    var img;
     for(var i = 0, len = imgs.length;i < len;i++) {
       img = imgs[i];
       if(img.hasAttribute(targetAttribute) && this.imgArray.indexOf(img) === -1) {
@@ -109,18 +111,18 @@
    * @returns {Boolean}
    */
   Lazyload.prototype.showImages = function() {
-    var array = [];
     var img;
-    while ((img = this.imgArray.shift())) {
+    for (var i = 0, l = this.imgArray.length;i < l;i++) {
+      img = this.imgArray[i];
       if (this.isShown(img)) {
         img.src = img.getAttribute(targetAttribute);
-        img.removeAttribute(targetAttribute);
-      } else {
-        array.push(img);
+        img.setAttribute(resolvedAttribute, true);
       }
     }
-    this.imgArray = array;
-    return this.imgArray.length === 0;
+    // :(
+    return this.imgArray.every(function (img) {
+      return img.hasAttribute(resolvedAttribute);
+    });
   };
 
   // export
