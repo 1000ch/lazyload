@@ -20,7 +20,7 @@
    */
   function _throttle(fn, delay) {
     var timer = null;
-    return function() {
+    return function () {
       var context = this, args = arguments;
       clearTimeout(timer);
       timer = setTimeout(function () {
@@ -58,7 +58,7 @@
   /**
    * start event listening
    */
-  Lazyload.prototype.startListening = function() {
+  Lazyload.prototype.startListening = function () {
 
     // for callback
     var that = this;
@@ -85,7 +85,7 @@
     window.addEventListener('scroll', onScrollThrottled);
   };
   
-  Lazyload.prototype.getImages = function() {
+  Lazyload.prototype.getImages = function () {
     // get image elements
     var imgs = document.getElementsByTagName('img');
     var img;
@@ -102,7 +102,7 @@
    * @param img
    * @returns {Boolean}
    */
-  Lazyload.prototype.isShown = function(img) {
+  Lazyload.prototype.isShown = function (img) {
     return (img.getBoundingClientRect().top < this.loadOffset);
   };
 
@@ -110,7 +110,7 @@
    * show images
    * @returns {Boolean}
    */
-  Lazyload.prototype.showImages = function() {
+  Lazyload.prototype.showImages = function () {
     var img;
     for (var i = 0, l = this.imgArray.length;i < l;i++) {
       img = this.imgArray[i];
