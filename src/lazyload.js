@@ -17,6 +17,7 @@
    * @param fn
    * @param delay
    * @returns {Function}
+   * @private
    */
   function _throttle(fn, delay) {
     var timer = null;
@@ -30,6 +31,27 @@
   }
 
   /**
+   * get load offset
+   * @returns {Number}
+   * @private
+   */
+  function _getLoadOffset () {
+    
+    // detect window height
+    var windowHeight = 0;
+    if (documentElement.clientHeight >= 0) {
+      windowHeight = documentElement.clientHeight;
+    } else if (document.body && document.body.clientHeight >= 0) {
+      windowHeight = document.body.clientHeight;
+    } else if (window.innerHeight >= 0) {
+      windowHeight = window.innerHeight;
+    }
+
+    // images which got in half of display forward will be loaded
+    return windowHeight * 1.5;
+  }
+  
+  /**
    * Lazyload Class
    * @constructor Lazyload
    */
@@ -37,19 +59,9 @@
     
     // img elements
     this.imgArray = [];
-    
-    // detect display size
-    this.windowHeight = 0;
-    if (documentElement.clientHeight >= 0) {
-      this.windowHeight = documentElement.clientHeight;
-    } else if (document.body && document.body.clientHeight >= 0) {
-      this.windowHeight = document.body.clientHeight;
-    } else if (window.innerHeight >= 0) {
-      this.windowHeight = window.innerHeight;
-    }
-    
-    // images which got in half of display forward will be loaded
-    this.loadOffset = this.windowHeight * 1.5;
+
+    // configure load offset
+    this.loadOffset = _getLoadOffset();
     
     // listen DOMContentLoaded and scroll
     this.startListening();
