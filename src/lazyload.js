@@ -18,15 +18,35 @@
    * @param delay
    * @returns {Function}
    * @private
+   * @description borrowed from underscore.js
    */
-  function _throttle(fn, delay) {
-    var timer = null;
-    return function () {
-      var context = this, args = arguments;
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        fn.apply(context, args);
-      }, delay);
+  function _throttle(fn, delay, options) {
+    var context, args, result;
+    var timeout = null;
+    var previous = 0;
+    options = options || {};
+    var later = function() {
+      previous = options.leading === false ? 0 : Date.now();
+      timeout = null;
+      result = fn.apply(context, args);
+      context = args = null;
+    };
+    return function() {
+      var now = Date.now();
+      if (!previous && options.leading === false) previous = now;
+      var remaining = delay - (now - previous);
+      context = this;
+      args = arguments;
+      if (remaining <= 0) {
+        clearTimeout(timeout);
+        timeout = null;
+        previous = now;
+        result = fn.apply(context, args);
+        context = args = null;
+      } else if (!timeout && options.trailing !== false) {
+        timeout = setTimeout(later, remaining);
+      }
+      return result;
     };
   }
 
