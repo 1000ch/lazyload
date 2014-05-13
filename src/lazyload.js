@@ -9,7 +9,7 @@
   // cache to local
   var documentElement = document.documentElement;
   var targetAttribute = 'data-src';
-  var resolvedAttribute = 'data-resolved';
+  var targetSrcsetAttribute = 'data-srcset';
   var rxReady = /complete|loaded|interactive/;
 
   /**
@@ -70,19 +70,101 @@
     // images which got in half of display forward will be loaded
     return windowHeight * 1.5;
   }
-  
+
+  /**
+   * Emulate srcset
+   * @see http://www.w3.org/html/wg/drafts/srcset/w3c-srcset/
+   * @see http://dev.w3.org/csswg/css-values-3/#resolution-value
+   * @param {String} srcset
+   * pear-mobile.jpeg 720w, pear-tablet.jpeg 1280w, pear-desktop.jpeg 1x
+   */
+  function _resolveSrcset (src, srcset) {
+
+    // for detection
+    var dpr = window.devicePixelRatio;
+    var width = window.innerWidth;
+
+    // srcset strings
+    var params = srcset.split(/\s*,\s*/g);
+    var candidates = [];
+
+    // 5.14 default candidate
+    candidates.push({
+      url: src,
+      w: Infinity,
+      x: 1
+    });
+
+    // parse srcset parameters
+    var tokens;
+    var candidate;
+    var url, descriptor, unit;
+    for (var i = 0, l = params.length;i < l;i++) {
+      tokens = params[i].split(/\s+/g);
+      url = tokens[0];
+      descriptor = tokens[1];
+      if (!url || !descriptor) {
+        continue;
+      }
+
+      unit = descriptor.slice(-1);
+      if (unit === 'w' || unit === 'x') {
+        candidate = {};
+        candidate.url = url;
+        candidate[unit] = descriptor.replace(unit, '') | 0;
+        candidates.push(candidate);
+      }
+    }
+
+    // found resolution
+    var resolution = {
+      w: Infinity,
+      x: 0
+    };
+
+    // find optimal width and dpr
+    var c;
+    for (i = 0, l = candidates.length;i < l;i++) {
+      c = candidates[i];
+      if (width <= c.w && c.w <= resolution.w) {
+        resolution.w = c.w;
+      }
+    }
+    for (i = 0, l = candidates.length;i < l;i++) {
+      c = candidates[i];
+      if (c.w !== resolution.w) {
+        continue;
+      }
+      if (resolution.x === 0 || dpr <= c.x && c.x <= resolution.x) {
+        resolution.x = c.x;
+      }
+    }
+
+    // return matched url with resolution
+    for (i = 0, l = candidates.length;i < l;i++) {
+      c = candidates[i];
+      if (resolution.w === c.w && resolution.x === c.x) {
+        return c.url;
+      }
+    }
+    return src;
+  }
+
   /**
    * Lazyload Class
    * @constructor Lazyload
    */
-  function Lazyload() {
-    
+  function Lazyload(selector) {
+
+    // selector
+    this.selector = selector || 'img[' + targetAttribute + ']';
+
     // img elements
     this.imgArray = [];
 
     // configure load offset
     this.loadOffset = _getLoadOffset();
-    
+
     // listen DOMContentLoaded and scroll
     this.startListening();
   }
@@ -93,22 +175,24 @@
   Lazyload.prototype.startListening = function () {
 
     // for callback
-    var that = this;
+    var self = this;
 
     if (rxReady.test(document.readyState)) {
-      this.getImages();
-      this.showImages();
+      self.getImages();
+      self.showImages();
     } else {
       document.addEventListener('DOMContentLoaded', function onDOMContentLoaded(e) {
-        that.getImages();
-        that.showImages();
+        self.getImages();
+        self.showImages();
       });
     }
     
     var onScrollThrottled = _throttle(function onScroll(e) {
-      if (that.showImages()) {
+      if (self.showImages()) {
+
         // if all images are loaded, release memory
-        that.imgArray = null;
+        self.imgArray.length = 0;
+
         // unbind scroll event
         window.removeEventListener('scroll', onScrollThrottled);
       }
@@ -118,12 +202,16 @@
   };
   
   Lazyload.prototype.getImages = function () {
+
+    // clear img array
+    this.imgArray.length = 0;
+    
     // get image elements
-    var imgs = document.getElementsByTagName('img');
     var img;
-    for(var i = 0, len = imgs.length;i < len;i++) {
+    var imgs = document.querySelectorAll(this.selector);
+    for (var i = 0, l = imgs.length; i < l;i++) {
       img = imgs[i];
-      if(img.hasAttribute(targetAttribute) && (documentElement.compareDocumentPosition(img) & 16)) {
+      if (documentElement.compareDocumentPosition(img) & 16) {
         this.imgArray.push(img);
       }
     }
@@ -147,14 +235,25 @@
     for (var i = 0, l = this.imgArray.length;i < l;i++) {
       img = this.imgArray[i];
       if (this.isShown(img)) {
-        img.src = img.getAttribute(targetAttribute);
-        img.setAttribute(resolvedAttribute, true);
+        var src = img.getAttribute(targetAttribute);
+        var srcset = img.getAttribute(targetSrcsetAttribute);
+        if (srcset) {
+          img.src = _resolveSrcset(src, srcset);
+        } else {
+          img.src = src;
+        }
+        img.removeAttribute(targetAttribute);
       }
     }
-    // :(
-    return this.imgArray.every(function (img) {
-      return img.hasAttribute(resolvedAttribute);
-    });
+
+    // clear array
+    this.getImages();
+
+    // if img length is 0
+    var isCompleted = (this.imgArray.length === 0);
+
+    // return completed or not
+    return isCompleted;
   };
 
   // export
