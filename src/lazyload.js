@@ -18,22 +18,17 @@
    * @param delay
    * @returns {Function}
    * @private
-   * @description borrowed from underscore.js
+   * @description forked from underscore.js
    */
-  function _throttle(fn, delay, options) {
+  function _throttle(fn, delay) {
     var context, args, result;
     var timeout = null;
     var previous = 0;
-    options = options || {};
-    var later = function() {
-      previous = options.leading === false ? 0 : Date.now();
-      timeout = null;
-      result = fn.apply(context, args);
-      context = args = null;
-    };
     return function() {
       var now = Date.now();
-      if (!previous && options.leading === false) previous = now;
+      if (!previous) {
+        previous = now;
+      }
       var remaining = delay - (now - previous);
       context = this;
       args = arguments;
@@ -43,8 +38,6 @@
         previous = now;
         result = fn.apply(context, args);
         context = args = null;
-      } else if (!timeout && options.trailing !== false) {
-        timeout = setTimeout(later, remaining);
       }
       return result;
     };
@@ -101,15 +94,15 @@
     var match;
     while ((match = /(.+?)\s([0-9]+)([wx])(\s([0-9]+)([wx]))?/g.exec(srcset))) {
       var url = match[1];
-      var number1 = match[2];
+      var number1 = match[2] | 0;
       var unit1 = match[3];
-      var number2 = match[4];
+      var number2 = match[4] | 0;
       var unit2 = match[5];
 
       // find optimal width and dpr
-      if (unit1 === 'w') {
+      if (unit1 === 'w' && number1) {
         if (width < number1 && number1 <= resolution.w) {
-          resolution.w = number1 | 0;
+          resolution.w = number1;
 
           // define as candidate
           candidate = {
@@ -117,16 +110,16 @@
             w: number1
           };
 
-          if (unit2 === 'x') {
+          if (unit2 === 'x' && number2) {
             if (dpr <= number2 && number2 <= resolution.x) {
-              resolution.x = number2 | 0;
+              resolution.x = number2;
               candidate.x = resolution.x;
             }
           }
 
           candidates.push(candidate);
         }
-      } else if (unit1 === 'x') {
+      } else if (unit1 === 'x' && number1) {
         if (dpr <= number1 && number1 <= resolution.x) {
           resolution.x = number1;
 
@@ -136,9 +129,9 @@
             x: number1
           };
 
-          if (unit2 === 'w') {
+          if (unit2 === 'w' && number2) {
             if (width < number2 && number2 <= resolution.w) {
-              resolution.w = number2 | 0;
+              resolution.w = number2;
               candidate.w = resolution.w;
             }
           }
@@ -149,16 +142,14 @@
     }
 
     // return matched url with resolution
-    var c;
-
-    for (var i = 0, l = candidates.length;i < l;i++) {
+    var c, i, l;
+    for (i = 0, l = candidates.length;i < l;i++) {
       c = candidates[i];
       if (resolution.w === c.w && resolution.x === c.x) {
         return c.url;
       }
     }
-
-    for (var i = 0, l = candidates.length;i < l;i++) {
+    for (i = 0, l = candidates.length;i < l;i++) {
       c = candidates[i];
       if (resolution.x === c.x) {
         return c.url;
