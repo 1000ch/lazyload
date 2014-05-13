@@ -84,69 +84,89 @@
     var dpr = window.devicePixelRatio;
     var width = window.innerWidth;
 
-    // srcset strings
-    var params = srcset.split(/\s*,\s*/g);
-    var candidates = [];
-
-    // 5.14 default candidate
-    candidates.push({
+    // include 5.14 default candidate
+    var candidate;
+    var candidates = [{
       url: src,
       w: Infinity,
       x: 1
-    });
-
-    // parse srcset parameters
-    var tokens;
-    var candidate;
-    var url, descriptor, unit;
-    for (var i = 0, l = params.length;i < l;i++) {
-      tokens = params[i].split(/\s+/g);
-      url = tokens[0];
-      descriptor = tokens[1];
-      if (!url || !descriptor) {
-        continue;
-      }
-
-      unit = descriptor.slice(-1);
-      if (unit === 'w' || unit === 'x') {
-        candidate = {};
-        candidate.url = url;
-        candidate[unit] = descriptor.replace(unit, '') | 0;
-        candidates.push(candidate);
-      }
-    }
+    }];
 
     // found resolution
     var resolution = {
       w: Infinity,
-      x: 0
+      x: 1
     };
 
-    // find optimal width and dpr
-    var c;
-    for (i = 0, l = candidates.length;i < l;i++) {
-      c = candidates[i];
-      if (width <= c.w && c.w <= resolution.w) {
-        resolution.w = c.w;
-      }
-    }
-    for (i = 0, l = candidates.length;i < l;i++) {
-      c = candidates[i];
-      if (c.w !== resolution.w) {
-        continue;
-      }
-      if (resolution.x === 0 || dpr <= c.x && c.x <= resolution.x) {
-        resolution.x = c.x;
+    var match;
+    while ((match = /(.+?)\s([0-9]+)([wx])(\s([0-9]+)([wx]))?/g.exec(srcset))) {
+      var url = match[1];
+      var number1 = match[2];
+      var unit1 = match[3];
+      var number2 = match[4];
+      var unit2 = match[5];
+
+      // find optimal width and dpr
+      if (unit1 === 'w') {
+        if (width < number1 && number1 <= resolution.w) {
+          resolution.w = number1 | 0;
+
+          // define as candidate
+          candidate = {
+            url: url,
+            w: number1
+          };
+
+          if (unit2 === 'x') {
+            if (dpr <= number2 && number2 <= resolution.x) {
+              resolution.x = number2 | 0;
+              candidate.x = resolution.x;
+            }
+          }
+
+          candidates.push(candidate);
+        }
+      } else if (unit1 === 'x') {
+        if (dpr <= number1 && number1 <= resolution.x) {
+          resolution.x = number1;
+
+          // define as candidate
+          candidate = {
+            url: url,
+            x: number1
+          };
+
+          if (unit2 === 'w') {
+            if (width < number2 && number2 <= resolution.w) {
+              resolution.w = number2 | 0;
+              candidate.w = resolution.w;
+            }
+          }
+
+          candidates.push(candidate);
+        }
       }
     }
 
     // return matched url with resolution
-    for (i = 0, l = candidates.length;i < l;i++) {
+    var c;
+
+    for (var i = 0, l = candidates.length;i < l;i++) {
       c = candidates[i];
       if (resolution.w === c.w && resolution.x === c.x) {
         return c.url;
       }
     }
+
+    for (var i = 0, l = candidates.length;i < l;i++) {
+      c = candidates[i];
+      if (resolution.x === c.x) {
+        return c.url;
+      } else if (resolution.w === c.w) {
+        return c.url;
+      }
+    }
+
     return src;
   }
 
