@@ -171,7 +171,7 @@
     this.selector = selector || 'img[' + targetAttribute + ']';
 
     // img elements
-    this.imgArray = [];
+    this.array = [];
 
     // configure load offset
     this.loadOffset = _getLoadOffset();
@@ -202,7 +202,7 @@
       if (self.showImages()) {
 
         // if all images are loaded, release memory
-        self.imgArray.length = 0;
+        self.array.length = 0;
 
         // unbind scroll event
         window.removeEventListener('scroll', onScrollThrottled);
@@ -214,8 +214,8 @@
   
   Lazyload.prototype.getImages = function () {
 
-    // clear img array
-    this.imgArray.length = 0;
+    // clear array
+    this.array.length = 0;
     
     // get image elements
     var img;
@@ -223,7 +223,7 @@
     for (var i = 0, l = imgs.length; i < l;i++) {
       img = imgs[i];
       if (documentElement.compareDocumentPosition(img) & 16) {
-        this.imgArray.push(img);
+        this.array.push(img);
       }
     }
   };
@@ -243,8 +243,8 @@
    */
   Lazyload.prototype.showImages = function () {
     var img;
-    for (var i = 0, l = this.imgArray.length;i < l;i++) {
-      img = this.imgArray[i];
+    for (var i = 0, l = this.array.length;i < l;i++) {
+      img = this.array[i];
       if (this.isShown(img)) {
         var src = img.getAttribute(targetAttribute);
         var srcset = img.getAttribute(targetSrcsetAttribute);
@@ -261,7 +261,7 @@
     this.getImages();
 
     // if img length is 0
-    var isCompleted = (this.imgArray.length === 0);
+    var isCompleted = (this.array.length === 0);
 
     // return completed or not
     return isCompleted;
