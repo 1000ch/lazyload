@@ -91,13 +91,15 @@
       x: 1
     };
 
+    var re = /[^\,\s](.+?)\s([0-9]+)([wx])(\s([0-9]+)([wx]))?/g;
     var match;
-    while ((match = /(.+?)\s([0-9]+)([wx])(\s([0-9]+)([wx]))?/g.exec(srcset))) {
+    while ((match = re.exec(srcset)) !== null) {
+
       var url = match[1];
       var number1 = match[2] | 0;
       var unit1 = match[3];
-      var number2 = match[4] | 0;
-      var unit2 = match[5];
+      var number2 = match[5] | 0;
+      var unit2 = match[6];
 
       // find optimal width and dpr
       if (unit1 === 'w' && number1) {
@@ -111,7 +113,7 @@
           };
 
           if (unit2 === 'x' && number2) {
-            if (dpr <= number2 && number2 <= resolution.x) {
+            if (dpr <= number2 && (dpr > resolution.x && number2 < resolution.x)) {
               resolution.x = number2;
               candidate.x = resolution.x;
             }
@@ -120,7 +122,7 @@
           candidates.push(candidate);
         }
       } else if (unit1 === 'x' && number1) {
-        if (dpr <= number1 && number1 <= resolution.x) {
+        if (dpr <= number1 && (dpr > resolution.x && number1 < resolution.x)) {
           resolution.x = number1;
 
           // define as candidate
