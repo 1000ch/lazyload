@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lazyload</title>
+    <link rel='stylesheet' href='./assets/css/reset.css'>
+    <link rel='stylesheet' href='http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'>
+  </head>
+  <body>
+    <div class='container'>
+      <header class='jumbotron'>
+        <h1>Lazyload.js</h1>
+        <p>
+          This is minimal library to load image lazy.
+          Images will be loaded when they are shown.
+          <a href='http://github.com/1000ch/lazyload'>lazyload.js is hosted on GitHub</a>.
+        </p>
+      </header>
+      <ul>
+        <li><img data-src='assets/img/chrome-128.png' data-srcset='assets/img/chrome-256.png 2x, assets/img/chrome-128.png 400w, assets/img/chrome-256.png 400w 2x' width='128' height='128' src='data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw=='></li>
+        <li><img data-src='assets/img/canary-128.png' data-srcset='assets/img/canary-256.png 2x, assets/img/canary-128.png 400w, assets/img/canary-256.png 400w 2x' width='128' height='128' src='data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw=='></li>
+        <li><img data-src='assets/img/chromium-128.png' data-srcset='assets/img/chromium-256.png 2x, assets/img/chromium-128.png 400w, assets/img/chromium-256.png 400w 2x' width='128' height='128' src='data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw=='></li>
+      </ul>
+    </div>
+    <script src="./src/lazyload.js"></script>
+    <script>new Lazyload()</script>
+  </body>
+</html>
