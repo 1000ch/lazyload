@@ -270,6 +270,6 @@
   };
 
   // export
-  window.Lazyload = Lazyload;
+  window.Lazyload = window.Lazyload || Lazyload;
 
 })(window, document);
