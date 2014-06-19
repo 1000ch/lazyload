@@ -11,6 +11,7 @@
   var targetAttribute = 'data-src';
   var targetSrcsetAttribute = 'data-srcset';
   var rxReady = /complete|loaded|interactive/;
+  var FALLBACK_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEElEQVR42gEFAPr/AP///wAI/AL+Sr4t6gAAAABJRU5ErkJggg==';
 
   /**
    * throttle
@@ -244,10 +245,22 @@
    * @returns {Boolean}
    */
   Lazyload.prototype.showImages = function () {
-    var img;
-    for (var i = 0, l = this.array.length;i < l;i++) {
-      img = this.array[i];
-      if (this.isShown(img)) {
+
+    var that = this;
+    this.array.forEach(function (img) {
+      if (that.isShown(img)) {
+
+        img.onload = function loadCallback(e) {
+          img.removeAttribute(targetAttribute);
+          img.onerror = img.onload = null;
+          that.array.splice(that.array.indexOf(img), 1);
+        };
+
+        img.onerror = function errorCallback(e) {
+          img.src = FALLBACK_IMAGE;
+          that.array.splice(that.array.indexOf(img), 1);
+        };
+
         var src = img.getAttribute(targetAttribute);
         var srcset = img.getAttribute(targetSrcsetAttribute);
         if (srcset) {
@@ -255,12 +268,8 @@
         } else {
           img.src = src;
         }
-        img.removeAttribute(targetAttribute);
       }
-    }
-
-    // clear array
-    this.getImages();
+    });
 
     // if img length is 0
     var isCompleted = (this.array.length === 0);
