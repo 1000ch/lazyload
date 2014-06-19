@@ -1,7 +1,10 @@
 {
   "name": "lazyload",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Image lazy loading.",
+  "scripts": {
+    "start": "python -m http.server"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/1000ch/lazyload.git"
