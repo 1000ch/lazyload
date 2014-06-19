@@ -201,14 +201,19 @@
       });
     }
     
+    document.addEventListener('DOMNodeInserted', function onDOMNodeInserted(e) {
+      self.getImages();
+      self.showImages();
+    });
+    
     var onScrollThrottled = _throttle(function onScroll(e) {
       if (self.showImages()) {
 
         // if all images are loaded, release memory
-        self.array.length = 0;
+        //self.array.length = 0;
 
         // unbind scroll event
-        window.removeEventListener('scroll', onScrollThrottled);
+        //window.removeEventListener('scroll', onScrollThrottled);
       }
     }, 300);
     
@@ -218,7 +223,7 @@
   Lazyload.prototype.getImages = function () {
 
     // clear array
-    this.array.length = 0;
+    //this.array.length = 0;
     
     // get image elements
     var img;
@@ -226,7 +231,9 @@
     for (var i = 0, l = imgs.length; i < l;i++) {
       img = imgs[i];
       if (documentElement.compareDocumentPosition(img) & 16) {
-        this.array.push(img);
+        if (this.array.indexOf(img) === -1) {
+          this.array.push(img);
+        }
       }
     }
   };
