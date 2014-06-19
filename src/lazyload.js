@@ -7,10 +7,8 @@
 (function(window, document) {
 
   // cache to local
-  var documentElement = document.documentElement;
-  var targetAttribute = 'data-src';
-  var targetSrcsetAttribute = 'data-srcset';
-  var rxReady = /complete|loaded|interactive/;
+  var TARGET_SRC = 'data-src';
+  var TARGET_SRCSET = 'data-srcset';
   var FALLBACK_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEElEQVR42gEFAPr/AP///wAI/AL+Sr4t6gAAAABJRU5ErkJggg==';
 
   /**
@@ -50,7 +48,9 @@
    * @private
    */
   function _getLoadOffset () {
-    
+
+    var documentElement = document.documentElement;
+
     // detect window height
     var windowHeight = 0;
     if (documentElement.clientHeight >= 0) {
@@ -171,7 +171,7 @@
   function Lazyload(selector) {
 
     // selector
-    this.selector = selector || 'img[' + targetAttribute + ']';
+    this.selector = selector || 'img[' + TARGET_SRC + ']';
 
     // img elements
     this.array = [];
@@ -191,7 +191,7 @@
     // for callback
     var self = this;
 
-    if (rxReady.test(document.readyState)) {
+    if (/complete|loaded|interactive/.test(document.readyState)) {
       self.getImages();
       self.showImages();
     } else {
@@ -208,12 +208,8 @@
     
     var onScrollThrottled = _throttle(function onScroll(e) {
       if (self.showImages()) {
-
-        // if all images are loaded, release memory
-        //self.array.length = 0;
-
         // unbind scroll event
-        //window.removeEventListener('scroll', onScrollThrottled);
+        window.removeEventListener('scroll', onScrollThrottled);
       }
     }, 300);
     
@@ -221,9 +217,8 @@
   };
   
   Lazyload.prototype.getImages = function () {
-
-    // clear array
-    //this.array.length = 0;
+    
+    var documentElement = document.documentElement;
     
     // get image elements
     var img;
@@ -253,23 +248,25 @@
    */
   Lazyload.prototype.showImages = function () {
 
-    var that = this;
+    // for callback
+    var self = this;
+
     this.array.forEach(function (img) {
-      if (that.isShown(img)) {
+      if (self.isShown(img)) {
 
-        img.onload = function loadCallback(e) {
-          img.removeAttribute(targetAttribute);
+        img.onload = img.onload || function loadCallback(e) {
+          img.removeAttribute(TARGET_SRC);
           img.onerror = img.onload = null;
-          that.array.splice(that.array.indexOf(img), 1);
+          self.array.splice(self.array.indexOf(img), 1);
         };
 
-        img.onerror = function errorCallback(e) {
+        img.onerror = img.onerror || function errorCallback(e) {
           img.src = FALLBACK_IMAGE;
-          that.array.splice(that.array.indexOf(img), 1);
+          self.array.splice(self.array.indexOf(img), 1);
         };
 
-        var src = img.getAttribute(targetAttribute);
-        var srcset = img.getAttribute(targetSrcsetAttribute);
+        var src = img.getAttribute(TARGET_SRC);
+        var srcset = img.getAttribute(TARGET_SRCSET);
         if (srcset) {
           img.src = _resolveSrcset(src, srcset);
         } else {
