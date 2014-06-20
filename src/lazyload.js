@@ -49,12 +49,10 @@
    */
   function _getLoadOffset () {
 
-    var documentElement = document.documentElement;
-
     // detect window height
     var windowHeight = 0;
-    if (documentElement.clientHeight >= 0) {
-      windowHeight = documentElement.clientHeight;
+    if (document.documentElement.clientHeight >= 0) {
+      windowHeight = document.documentElement.clientHeight;
     } else if (document.body && document.body.clientHeight >= 0) {
       windowHeight = document.body.clientHeight;
     } else if (window.innerHeight >= 0) {
@@ -168,10 +166,15 @@
    * Lazyload Class
    * @constructor Lazyload
    */
-  function Lazyload(selector) {
+  function Lazyload(options) {
+
+    options = options || {};
 
     // selector
-    this.selector = selector || 'img[' + TARGET_SRC + ']';
+    this.selector = options.selector || 'img[' + TARGET_SRC + ']';
+
+    // if the page is static html, set false
+    this.async = options.async !== undefined ? !!options.async : true;
 
     // img elements
     this.array = [];
@@ -195,21 +198,23 @@
       self.getImages();
       self.showImages();
     } else {
-      document.addEventListener('DOMContentLoaded', function onDOMContentLoaded(e) {
+      document.addEventListener('DOMContentLoaded', function DOMContentLoaded(e) {
         self.getImages();
         self.showImages();
       });
     }
     
-    document.addEventListener('DOMNodeInserted', function onDOMNodeInserted(e) {
+    document.addEventListener('DOMNodeInserted', function DOMNodeInserted(e) {
       self.getImages();
       self.showImages();
     });
     
     var onScrollThrottled = _throttle(function onScroll(e) {
       if (self.showImages()) {
-        // unbind scroll event
-        window.removeEventListener('scroll', onScrollThrottled);
+        if (!self.async) {
+          // unbind scroll event
+          window.removeEventListener('scroll', onScrollThrottled);
+        }
       }
     }, 300);
     
@@ -262,7 +267,6 @@
 
         img.onerror = img.onerror || function errorCallback(e) {
           img.src = FALLBACK_IMAGE;
-          self.array.splice(self.array.indexOf(img), 1);
         };
 
         var src = img.getAttribute(TARGET_SRC);
