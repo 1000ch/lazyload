@@ -280,10 +280,8 @@
     });
 
     // if img length is 0
-    var isCompleted = (this.array.length === 0);
-
     // return completed or not
-    return isCompleted;
+    return (this.array.length === 0);
   };
 
   // export
