@@ -223,6 +223,31 @@
     window.addEventListener('scroll', onScrollThrottled);
   };
   
+  Lazyload.prototype.resolveImages = function () {
+    this.array.forEach(function (img) {
+      if (self.isShown(img)) {
+
+        img.onload = img.onload || function loadCallback(e) {
+          img.removeAttribute(TARGET_SRC);
+          img.onerror = img.onload = null;
+          self.array.splice(self.array.indexOf(img), 1);
+        };
+
+        img.onerror = img.onerror || function errorCallback(e) {
+          img.src = FALLBACK_IMAGE;
+        };
+
+        var src = img.getAttribute(TARGET_SRC);
+        var srcset = img.getAttribute(TARGET_SRCSET);
+        if (srcset) {
+          img.src = _resolveSrcset(src, srcset);
+        } else {
+          img.src = src;
+        }
+      }
+    });
+  };
+  
   Lazyload.prototype.getImages = function () {
     
     var documentElement = document.documentElement;
