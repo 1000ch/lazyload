@@ -203,12 +203,14 @@
         self.showImages();
       });
     }
-    
-    document.addEventListener('DOMNodeInserted', function DOMNodeInserted(e) {
+
+    var onDOMNodeInsertedThrottled = _throttle(function (e) {
       self.getImages();
       self.showImages();
-    });
-    
+    }, 300);
+
+    document.addEventListener('DOMNodeInserted', onDOMNodeInsertedThrottled);
+
     var onScrollThrottled = _throttle(function onScroll(e) {
       if (self.showImages()) {
         if (!self.async) {
